@@ -314,6 +314,7 @@ const ServiceDetails = () => {
       "You must agree to the terms and conditions"
     ),
     xxTrustedFormCertUrl: Yup.string().required("TrustedForm certificate is required. Please wait for the form to fully load."),
+    userAgent: Yup.string().required("Browser info is required"),
   };
 
   service.inputs.forEach((input) => {
@@ -801,6 +802,12 @@ const handleSubmit = (values, { resetForm }) => {
   });
   // Add TcpaText to API payload (hardcoded value)
   formDataObj.TcpaText = TcpaText;
+
+  // Rename userAgent to browser
+  if (formDataObj.userAgent) {
+    formDataObj.browser = formDataObj.userAgent;
+    delete formDataObj.userAgent;
+  }
 
   // Add final API payload fields
   formDataObj = {
