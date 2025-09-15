@@ -35,28 +35,6 @@ const loadTrustedFormScript = () => {
   }
 };
 
-// Function to load LeadiD script
-const loadLeadiDScript = () => {
-  const leadiDScriptSrc =
-    "//create.lidstatic.com/campaign/402848de-d8aa-7158-923b-a6a24e7956dc.js?snippet_version=2";
-
-  if (!isScriptAlreadyAdded(leadiDScriptSrc)) {
-    const leadiDScript = document.createElement("script");
-    leadiDScript.id = "LeadiDscript_campaign";
-    leadiDScript.type = "text/javascript";
-    leadiDScript.async = true;
-    leadiDScript.src = leadiDScriptSrc;
-
-    document.body.appendChild(leadiDScript);
-
-    return () => {
-      if (document.body.contains(leadiDScript)) {
-        document.body.removeChild(leadiDScript);
-      }
-    };
-  }
-};
-
 // Function to fetch initial form data
 const fetchInitialData = (setFieldValue) => {
   fetch("https://api.ipify.org?format=json")
@@ -93,7 +71,6 @@ const ServiceDetails = () => {
   );
 
   const [currentStep, setCurrentStep] = useState(0);
-  const [formDataString, setFormDataString] = useState("");
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState("");
 
@@ -144,70 +121,16 @@ const ServiceDetails = () => {
   }));
 
   const personalInfoFields = [
+    { name: "state", label: "State", type: "select", options: [
+      "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming", "Puerto Rico", "Washington DC", "Virgin Islands"
+    ] },
+    { name: "zipCode", label: "Zip Code", type: "text" },
+    { name: "city", label: "City", type: "text" },
+    { name: "streetAddress", label: "Street Address", type: "text" },
     { name: "firstName", label: "First Name", type: "text" },
     { name: "lastName", label: "Last Name", type: "text" },
     { name: "email", label: "Email", type: "email" },
     { name: "phone", label: "Phone Number", type: "tel" },
-    { name: "streetAddress", label: "Street Address", type: "text" },
-    { name: "city", label: "City", type: "text" },
-    {
-      name: "state",
-      label: "State",
-      type: "select",
-      options: [
-        "Alabama",
-        "Alaska",
-        "Arizona",
-        "Arkansas",
-        "California",
-        "Colorado",
-        "Connecticut",
-        "Delaware",
-        "Florida",
-        "Georgia",
-        "Hawaii",
-        "Idaho",
-        "Illinois",
-        "Indiana",
-        "Iowa",
-        "Kansas",
-        "Kentucky",
-        "Louisiana",
-        "Maine",
-        "Maryland",
-        "Massachusetts",
-        "Michigan",
-        "Minnesota",
-        "Mississippi",
-        "Missouri",
-        "Montana",
-        "Nebraska",
-        "Nevada",
-        "New Hampshire",
-        "New Jersey",
-        "New Mexico",
-        "New York",
-        "North Carolina",
-        "North Dakota",
-        "Ohio",
-        "Oklahoma",
-        "Oregon",
-        "Pennsylvania",
-        "Rhode Island",
-        "South Carolina",
-        "South Dakota",
-        "Tennessee",
-        "Texas",
-        "Utah",
-        "Vermont",
-        "Virginia",
-        "Washington",
-        "West Virginia",
-        "Wisconsin",
-        "Wyoming",
-      ],
-    },
-    { name: "zipCode", label: "Zip Code", type: "text" },
   ];
 
   const additionalFields = [
@@ -332,6 +255,11 @@ const handleSubmit = (values, { resetForm }) => {
   setLoading(true);
   setApiError("");
   let formDataObj = { ...values };
+
+  // Convert state to abbreviation
+  if (formDataObj.state) {
+    formDataObj.state = stateAbbreviations[formDataObj.state] || formDataObj.state;
+  }
 
   // --- Affiliate param logic for API payload ---
   if (affiliateParamsRef.current) {
@@ -818,7 +746,8 @@ const handleSubmit = (values, { resetForm }) => {
   // ✅ Send API Request as application/json
   fetch("https://getlocalcontractors.com/api/ping-proxy.php", {
     method: "POST",
-    headers: {
+    headers:
+    {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(formDataObj), // send JSON data
@@ -860,17 +789,276 @@ const handleSubmit = (values, { resetForm }) => {
   });
 };
 
+  const areaCodesUS = [
+  // Alabama
+  205, 251, 256, 334, 659,
+  // Alaska
+  907,
+  // Arizona
+  480, 520, 602, 623, 928,
+  // Arkansas
+  479, 501, 870,
+  // California
+  209, 213, 279, 310, 323, 341, 408, 415, 424, 442, 510, 530, 559,
+  562, 619, 626, 650, 657, 661, 669, 707, 714, 747, 760, 805, 818,
+  820, 831, 858, 909, 916, 925, 949, 951, 628,
+  // Colorado
+  303, 719, 720, 970,
+  // Connecticut
+  203, 475, 860, 959,
+  // Delaware
+  302,
+  // District of Columbia
+  202,
+  // Florida
+  239, 305, 321, 352, 386, 407, 561, 689, 727, 754, 772, 786,
+  813, 850, 863, 904, 941, 954,
+  // Georgia
+  229, 404, 470, 478, 678, 706, 762, 770, 912,
+  // Hawaii
+  808,
+  // Idaho
+  208, 986,
+  // Illinois
+  217, 224, 309, 312, 331, 464, 618, 630, 708, 773, 815, 847, 872,
+  // Indiana
+  219, 260, 317, 463, 574, 765, 812, 930,
+  // Iowa
+  319, 515, 563, 641, 712,
+  // Kansas
+  316, 620, 785, 913,
+  // Kentucky
+  270, 364, 502, 606, 859,
+  // Louisiana
+  225, 318, 337, 504, 985,
+  // Maine
+  207,
+  // Maryland
+  240, 301, 410, 443, 667,
+  // Massachusetts
+  339, 351, 413, 508, 617, 774, 781, 857, 978,
+  // Michigan
+  231, 248, 269, 313, 517, 586, 616, 734, 810, 906, 947, 989,
+  // Minnesota
+  218, 320, 507, 612, 651, 763, 952,
+  // Mississippi
+  228, 601, 662, 769,
+  // Missouri
+  314, 417, 573, 636, 660, 816,
+  // Montana
+  406,
+  // Nebraska
+  308, 402, 531,
+  // Nevada
+  702, 725, 775,
+  // New Hampshire
+  603,
+  // New Jersey
+  201, 551, 609, 640, 732, 848, 856, 862, 908, 973,
+  // New Mexico
+  505, 575,
+  // New York
+  212, 315, 332, 347, 516, 518, 585, 607, 631, 646, 716,
+  718, 838, 845, 914, 917, 929, 934,
+  // North Carolina
+  252, 336, 704, 743, 828, 910, 919, 980, 984,
+  // North Dakota
+  701,
+  // Ohio
+  216, 220, 234, 330, 380, 419, 440, 513, 567, 614, 740, 937,
+  // Oklahoma
+  405, 539, 580, 918,
+  // Oregon
+  458, 503, 541, 971,
+  // Pennsylvania
+  215, 223, 267, 272, 412, 445, 484, 570, 610, 717, 724, 814, 878,
+  // Rhode Island
+  401,
+  // South Carolina
+  803, 839, 843, 854, 864,
+  // South Dakota
+  605,
+  // Tennessee
+  423, 615, 629, 731, 865, 901, 931,
+  // Texas
+  210, 214, 254, 281, 325, 346, 361, 409, 430, 432, 469, 512,
+  682, 713, 726, 737, 806, 817, 830, 832, 903, 915, 936, 940,
+  945, 956, 972, 979,
+  // Utah
+  385, 435, 801,
+  // Vermont
+  802,
+  // Virginia
+  276, 434, 540, 571, 703, 757, 804, 826, 948,
+  // Washington
+  206, 253, 360, 425, 509, 564,
+  // West Virginia
+  304, 681,
+  // Wisconsin
+  262, 414, 534, 608, 715, 920,
+  // Wyoming
+  307,
+  // Puerto Rico
+  787, 939,
+  // U.S. Virgin Islands
+  340
+];
+
+
+// State abbreviation map
+const stateAbbreviations = {
+  "Alabama": "AL", "Alaska": "AK", "Arizona": "AZ", "Arkansas": "AR", "California": "CA",
+  "Colorado": "CO", "Connecticut": "CT", "Delaware": "DE", "Florida": "FL", "Georgia": "GA",
+  "Hawaii": "HI", "Idaho": "ID", "Illinois": "IL", "Indiana": "IN", "Iowa": "IA", "Kansas": "KS",
+  "Kentucky": "KY", "Louisiana": "LA", "Maine": "ME", "Maryland": "MD", "Massachusetts": "MA",
+  "Michigan": "MI", "Minnesota": "MN", "Mississippi": "MS", "Missouri": "MO", "Montana": "MT",
+  "Nebraska": "NE", "Nevada": "NV", "New Hampshire": "NH", "New Jersey": "NJ", "New Mexico": "NM",
+  "New York": "NY", "North Carolina": "NC", "North Dakota": "ND", "Ohio": "OH", "Oklahoma": "OK",
+  "Oregon": "OR", "Pennsylvania": "PA", "Rhode Island": "RI", "South Carolina": "SC",
+  "South Dakota": "SD", "Tennessee": "TN", "Texas": "TX", "Utah": "UT", "Vermont": "VT",
+  "Virginia": "VA", "Washington": "WA", "West Virginia": "WV", "Wisconsin": "WI", "Wyoming": "WY",
+  "Puerto Rico": "PR", "Washington DC": "DC", "Virgin Islands": "VI"
+};
+
+  // Add stateAbbreviation and ipCountryCode state
+  const [ipCountryCode, setIpCountryCode] = useState("US");
+  const [ipCheckError, setIpCheckError] = useState("");
+  const [validating, setValidating] = useState(false); // <-- Add this
+
+  // Reset ipCountryCode and ipCheckError on service change
+  useEffect(() => {
+    setIpCountryCode("US");
+    setIpCheckError("");
+  }, [title]);
+
+  // --- Formik enhanced validateAndContinue ---
   const validateAndContinue = async (
     values,
     errors,
     validateForm,
     setFieldTouched,
-    setErrors
+    setErrors,
+    setFieldValue
   ) => {
     const currentField = allFields[currentStep];
 
+    setValidating(true); // <-- Start loader
     await setFieldTouched(currentField.name, true, false);
-    const validationErrors = await validateForm();
+    let validationErrors = await validateForm();
+
+    // State + ZIP validation
+    if (
+      currentField.name === "zipCode" &&
+      !validationErrors.zipCode &&
+      values.zipCode &&
+      values.state
+    ) {
+      try {
+        const zipRes = await fetch(
+          `https://steermarketeer.com/api/a9f3b2c1e7d4?zip=${values.zipCode}`,
+          { method: "POST" }
+        );
+        const zipData = await zipRes.json();
+
+        if (zipData.state_name === "unknown") {
+          setErrors({ ...validationErrors, zipCode: "Invalid zip code (not US)." });
+          setValidating(false);
+          return;
+        }
+        if (
+          zipData.state_name &&
+          zipData.state_name.toLowerCase() !== values.state.toLowerCase()
+        ) {
+          setErrors({ ...validationErrors, zipCode: "Invalid zip code for selected state." });
+          setValidating(false);
+          return;
+        }
+
+        // Auto-fill city using zippopotam.us
+        try {
+          const cityRes = await fetch(
+            `https://api.zippopotam.us/us/${values.zipCode}`
+          );
+          if (cityRes.ok) {
+            const cityData = await cityRes.json();
+            if (
+              cityData.places &&
+              cityData.places.length > 0 &&
+              cityData.places[0]["place name"]
+            ) {
+              setFieldValue("city", cityData.places[0]["place name"], false);
+            }
+          } else {
+            setFieldValue("city", "", false);
+          }
+        } catch {
+          setFieldValue("city", "", false);
+        }
+      } catch {
+        setErrors({ ...validationErrors, zipCode: "Could not validate zip code." });
+        setValidating(false);
+        return;
+      }
+    }
+
+    // Email domain validation
+    if (
+      currentField.name === "email" &&
+      !validationErrors.email &&
+      values.email
+    ) {
+      const domain = values.email.split("@")[1];
+      if (domain) {
+        try {
+          const res = await fetch(`https://8.8.8.8/resolve?name=${domain}&type=MX`);
+          const data = await res.json();
+          if (data.Status === 3) {
+            setErrors({ ...validationErrors, email: "Invalid email domain." });
+            setValidating(false);
+            return;
+          }
+        } catch {
+          setErrors({ ...validationErrors, email: "Could not validate email domain." });
+          setValidating(false);
+          return;
+        }
+      }
+    }
+
+    // Phone area code validation
+    if (
+      currentField.name === "phone" &&
+      !validationErrors.phone &&
+      values.phone.length === 10
+    ) {
+      const areaCode = parseInt(values.phone.slice(0, 3), 10);
+      if (!areaCodesUS.includes(areaCode)) {
+        setErrors({ ...validationErrors, phone: "Invalid US area code." });
+        setValidating(false);
+        return;
+      }
+    }
+
+    // IP country validation at 2nd last step (do NOT block next, just set error for submit)
+    if (currentStep === totalSteps - 2 && values.ipAddress) {
+      try {
+        const ipRes = await fetch(`https://ipapi.co/${values.ipAddress}/json/`);
+        const ipData = await ipRes.json();
+        if (ipData.country_code !== "US") {
+          setIpCountryCode(ipData.country_code);
+          setIpCheckError("This service is only for US citizens.");
+        } else {
+          setIpCountryCode("US");
+          setIpCheckError("");
+        }
+      } catch {
+        setIpCountryCode("US");
+        setIpCheckError("");
+      }
+      // Do NOT return here, let user go to last step
+    }
+
+    setValidating(false); // <-- End loader
 
     if (
       !validationErrors[currentField.name] &&
@@ -944,7 +1132,6 @@ const handleSubmit = (values, { resetForm }) => {
           {({
             values,
             errors,
-            touched,
             setFieldValue,
             validateForm,
             setFieldTouched,
@@ -1136,7 +1323,11 @@ const handleSubmit = (values, { resetForm }) => {
                       <button
                         type="submit"
                         className="px-6 py-2 bg-[#ffb000] text-black rounded-md hover:bg-amber-500 transition duration-300 ml-auto flex items-center justify-center"
-                        disabled={loading}
+                        disabled={loading || ipCountryCode !== "US"} // <-- Use disabled, not blocked
+                        style={{
+                          opacity: loading || ipCountryCode !== "US" ? 0.5 : 1,
+                          cursor: loading || ipCountryCode !== "US" ? "not-allowed" : "blocked"
+                        }}
                       >
                         {loading ? (
                           <svg className="animate-spin h-5 w-5 mr-2 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -1155,7 +1346,8 @@ const handleSubmit = (values, { resetForm }) => {
                             errors,
                             validateForm,
                             setFieldTouched,
-                            setErrors
+                            setErrors,
+                            setFieldValue // <-- pass this
                           )
                         }
                         className="px-6 py-2 bg-[#ffb000] text-black rounded-md hover:bg-amber-500 transition duration-300 ml-auto"
@@ -1167,11 +1359,19 @@ const handleSubmit = (values, { resetForm }) => {
                   {apiError && (
                     <div className="text-red-600 text-center mt-4">{apiError}</div>
                   )}
+                  {ipCheckError && (
+                    <div className="text-red-600 text-center mt-4">{ipCheckError}</div>
+                  )}
                 </div>
               </Form>
             );
           }}
         </Formik>
+        {validating && (
+          <div className="text-center text-[#ffb000] font-semibold mb-2">
+            Validating...
+          </div>
+        )}
         <noscript>
   <img src='//create.leadid.com/noscript.gif?lac=6B96394A-E3F0-75F4-8748-80CB63C352C2&lck=402848de-d8aa-7158-923b-a6a24e7956dc&snippet_version=2' alt="" />
 </noscript>
