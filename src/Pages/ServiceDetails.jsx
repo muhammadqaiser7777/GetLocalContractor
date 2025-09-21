@@ -1363,7 +1363,12 @@ const stateAbbreviations = {
                         )}
                         {providerLoading && <div className="text-sm text-gray-500 mt-1">Loading...</div>}
                         {providerSuggestions.length > 0 && (
-                          <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-40 overflow-y-auto shadow-lg">
+                          <ul
+                            className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-40 overflow-y-auto shadow-lg"
+                            style={{ WebkitOverflowScrolling: 'touch' }}
+                            onTouchStart={(e) => e.stopPropagation()}
+                            onTouchMove={(e) => e.stopPropagation()}
+                          >
                             {providerSuggestions.map((provider) => (
                               <li
                                 key={provider.id}
