@@ -63,6 +63,42 @@ const fetchInitialData = (setFieldValue) => {
 };
 
 const ServiceDetails = () => {
+  const fetchProviders = async (query) => {
+    if (!query.trim()) {
+      setProviderSuggestions([]);
+      return;
+    }
+    setProviderLoading(true);
+    try {
+      const res = await fetch(`https://steermarketeer.com/API/providers.php?q=${encodeURIComponent(query)}`);
+      if (res.ok) {
+        const data = await res.json();
+        // Sort by most matching: prioritize names that start with query, then contain it
+        const sortedData = data.sort((a, b) => {
+          const queryLower = query.toLowerCase();
+          const aLower = a.name.toLowerCase();
+          const bLower = b.name.toLowerCase();
+          const aStarts = aLower.startsWith(queryLower);
+          const bStarts = bLower.startsWith(queryLower);
+          if (aStarts && !bStarts) return -1;
+          if (!aStarts && bStarts) return 1;
+          const aIndex = aLower.indexOf(queryLower);
+          const bIndex = bLower.indexOf(queryLower);
+          if (aIndex === -1 && bIndex === -1) return 0;
+          if (aIndex === -1) return 1;
+          if (bIndex === -1) return -1;
+          return aIndex - bIndex;
+        });
+        setProviderSuggestions(sortedData);
+      } else {
+        setProviderSuggestions([]);
+      }
+    } catch (error) {
+      console.error('Error fetching providers:', error);
+      setProviderSuggestions([]);
+    }
+    setProviderLoading(false);
+  };
   const { title } = useParams();
   const navigate = useNavigate();
   const decodedTitle = decodeURIComponent(title);
@@ -73,6 +109,10 @@ const ServiceDetails = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState("");
+  const [providerSuggestions, setProviderSuggestions] = useState([]);
+  const [providerLoading, setProviderLoading] = useState(false);
+  const [selectedProviderId, setSelectedProviderId] = useState(null);
+  const debounceRef = useRef(null);
 
   // --- Affiliate param logic START ---
   // Store affiliate params only on first load
@@ -208,6 +248,7 @@ const ServiceDetails = () => {
     userAgent: "",
     xxTrustedFormCertUrl: "",
     universalLeadid: "",
+    ElectricalEnergyProviderId: "",
   };
 
   const fieldValidationSchemas = {
@@ -392,9 +433,9 @@ const handleSubmit = (values, { resetForm }) => {
     }
     // Energy provider mapping
     if (formDataObj["Who is your energy provider?"]) {
-      const selectedProvider = formDataObj["Who is your energy provider?"];
-      formDataObj["ElectricalEnergyProvider"] = selectedProvider;
+      formDataObj["ElectricalEnergyProvider"] = formDataObj["Who is your energy provider?"];
       delete formDataObj["Who is your energy provider?"];
+      delete formDataObj["ElectricalEnergyProviderId"];
     }
   }
 
@@ -1058,6 +1099,30 @@ const stateAbbreviations = {
       // Do NOT return here, let user go to last step
     }
 
+    // Energy provider validation
+    if (currentField.name === "Who is your energy provider?" && !validationErrors[currentField.name] && values[currentField.name]) {
+      try {
+        const res = await fetch(`https://steermarketeer.com/API/providers.php?q=${encodeURIComponent(values[currentField.name])}`);
+        if (res.ok) {
+          const data = await res.json();
+          const found = data.some(p => p.name === values[currentField.name]);
+          if (!found) {
+            setErrors({ ...validationErrors, [currentField.name]: "Please select a valid energy provider from the suggestions." });
+            setValidating(false);
+            return;
+          }
+        } else {
+          setErrors({ ...validationErrors, [currentField.name]: "Could not validate provider." });
+          setValidating(false);
+          return;
+        }
+      } catch {
+        setErrors({ ...validationErrors, [currentField.name]: "Could not validate provider." });
+        setValidating(false);
+        return;
+      }
+    }
+
     setValidating(false); // <-- End loader
 
     if (
@@ -1261,22 +1326,62 @@ const stateAbbreviations = {
                         placeholder="Enter your 10-digit phone number"
                       />
                     ) : currentField.name === "Current zip code" ||
- currentField.name === "Moving zip code" ||
- currentField.name === "zipCode" ? (
-  <Field
-    type="text"
-    name={currentField.name}
-    className="w-full px-4 py-3 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ffb000] focus:border-transparent"
-    inputMode="numeric"
-    maxLength={5}
-    pattern="\d*"
-    onChange={e => {
-      const value = e.target.value.replace(/\D/g, "").slice(0, 5);
-      setFieldValue(currentField.name, value);
-    }}
-    placeholder="Enter 5-digit zip code"
-  />
-) : (
+                     currentField.name === "Moving zip code" ||
+                     currentField.name === "zipCode" ? (
+                      <Field
+                        type="text"
+                        name={currentField.name}
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ffb000] focus:border-transparent"
+                        inputMode="numeric"
+                        maxLength={5}
+                        pattern="\d*"
+                        onChange={e => {
+                          const value = e.target.value.replace(/\D/g, "").slice(0, 5);
+                          setFieldValue(currentField.name, value);
+                        }}
+                        placeholder="Enter 5-digit zip code"
+                      />
+                    ) : currentField.name === "Who is your energy provider?" ? (
+                      <div className="relative">
+                        <Field
+                          type="text"
+                          name={currentField.name}
+                          className="w-full px-4 py-3 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ffb000] focus:border-transparent"
+                          placeholder="Type to search energy providers"
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setFieldValue(currentField.name, value);
+                            setSelectedProviderId(null); // Reset ID when typing
+                            if (debounceRef.current) clearTimeout(debounceRef.current);
+                            debounceRef.current = setTimeout(() => {
+                              fetchProviders(value);
+                            }, 300);
+                          }}
+                        />
+                        {selectedProviderId !== null && (
+                          <div className="text-xs text-gray-500 mt-1">ID: {selectedProviderId}</div>
+                        )}
+                        {providerLoading && <div className="text-sm text-gray-500 mt-1">Loading...</div>}
+                        {providerSuggestions.length > 0 && (
+                          <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-40 overflow-y-auto shadow-lg">
+                            {providerSuggestions.map((provider) => (
+                              <li
+                                key={provider.id}
+                                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onClick={() => {
+                                  setFieldValue(currentField.name, provider.name);
+                                  setFieldValue("ElectricalEnergyProviderId", provider.id);
+                                  setSelectedProviderId(provider.id);
+                                  setProviderSuggestions([]);
+                                }}
+                              >
+                                {provider.name}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    ) : (
                       <Field
                         type={currentField.type}
                         name={currentField.name}
@@ -1306,6 +1411,9 @@ const stateAbbreviations = {
                       component="p"
                       className="text-red-600 text-sm mt-2"
                     />
+                    {currentField.name === "Who is your energy provider?" && (
+                      <div className="text-sm text-gray-500 mt-2">If not sure, type "Other"</div>
+                    )}
                   </div>
 
                   <div className="flex gap-4 justify-between mt-6">
