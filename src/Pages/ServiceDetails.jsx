@@ -1358,9 +1358,6 @@ const stateAbbreviations = {
                             }, 300);
                           }}
                         />
-                        {selectedProviderId !== null && (
-                          <div className="text-xs text-gray-500 mt-1">ID: {selectedProviderId}</div>
-                        )}
                         {providerLoading && <div className="text-sm text-gray-500 mt-1">Loading...</div>}
                         {providerSuggestions.length > 0 && (
                           <ul
