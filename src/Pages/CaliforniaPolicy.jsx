@@ -659,7 +659,7 @@ const CaliforniaPolicy = () => {
         your choices and rights regarding such use, or wish to exercise your
         rights under California law, please do not hesitate to contact us at:
         <span className="font-bold">Email:</span> getlocalcontractors.com Postal
-        Address: getlocalcontractors.com, 80 Broad Street, New York, NY, 10001
+        Address: getlocalcontractors.com, 8 The Green Street B, Kent, DE, Dover, 19901, United States
       </div>
     </div>
   );

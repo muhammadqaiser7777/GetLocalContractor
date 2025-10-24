@@ -57,7 +57,7 @@ const Contact = () => {
           </div>
           <div className="flex items-center space-x-4">
             <FaMapMarkerAlt className="text-primary text-xl" />
-            <span className="text-lg">80 Broad Street, New York, NY, 10001</span>
+            <span className="text-lg">8 The Green Street B, Kent, DE, Dover, 19901, United States</span>
           </div>
         </div>
 
