@@ -1148,7 +1148,7 @@ const stateAbbreviations = {
     const cleanupTrustedForm = loadTrustedFormScript();
     // const cleanupLeadiD = loadLeadiDScript(); // <-- Commented out for now
     // Load LeadiD script
-  const leadiDScriptSrc = "//create.lidstatic.com/campaign/402848de-d8aa-7158-923b-a6a24e7956dc.js?snippet_version=2";
+  const leadiDScriptSrc = "//create.lidstatic.com/campaign/6B96394A-E3F0-75F4-8748-80CB63C352C2.js?snippet_version=2";
   let leadiDScript;
   if (!document.querySelector(`script[src="${leadiDScriptSrc}"]`)) {
     leadiDScript = document.createElement("script");
@@ -1483,7 +1483,7 @@ const stateAbbreviations = {
           </div>
         )}
         <noscript>
-  <img src='//create.leadid.com/noscript.gif?lac=6B96394A-E3F0-75F4-8748-80CB63C352C2&lck=402848de-d8aa-7158-923b-a6a24e7956dc&snippet_version=2' alt="" />
+  <img src='//create.leadid.com/noscript.gif?lac=6B96394A-E3F0-75F4-8748-80CB63C352C2&lck=6B96394A-E3F0-75F4-8748-80CB63C352C2&snippet_version=2' alt="" />
 </noscript>
       </div>
     );
