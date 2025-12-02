@@ -411,6 +411,7 @@ const handleSubmit = (values, { resetForm }) => {
         "600$",
         "700$",
         "800$",
+        "900$",
         "More than 900$",
       ];
       const selected = formDataObj["How much is your currency bill?"];
@@ -499,7 +500,7 @@ const handleSubmit = (values, { resetForm }) => {
     }
     // roofingType mapping for Roofing service
     if (key === "What type of material do you need") {
-      const roofingOptions = ["Ashphalt Shingle",
+      const roofingOptions = ["Asphalt Shingle",
           "Cedar Shake",
           "Metal",
           "Natural Slate",
@@ -521,34 +522,33 @@ const handleSubmit = (values, { resetForm }) => {
     if (key === "What type of HVAC do you need") {
       const hvacOptions = [
         "Air Ducts Repair & Replace",
-          "Boiler & Radiators-New install",
-          "Central air cleaning & maintinance",
-          "Central air-New install",
-          "Central air-Repair",
-          "Commercial Cooling",
-          "Commercial Heat-New install",
-          "Commercial Heat-Repair",
-          "Ductless Air Conditioning",
-          "Furnaces-New install",
-          "Furnaces-Repair",
-          "Gas Heat-New install",
-          "Gas Heat-Repair",
-          "Geothermal Systems",
-          "Heating-New install",
-          "Heating-Repair",
-          "Heat Pumps-New install",
-          "Heat Pumps-Repair",
-          "Oil Heat-New install",
-          "Oil Heat-Repair",
-          "Radiant Floor system",
-          "Thermostats",
-          "Boiler & Radiators Repair",
-          "Ductless AC Repair",
-          "Ducts and Vents  Install",
+        "Boiler & Radiators New Install",
+        "Central air Cleaning & maintenance",
+        "Central Air-New Install",
+        "Central Air-Repair",
+        "Commercial Cooling",
+        "Commercial Heat-New Install",
+        "Commercial Heat-Repair",
+        "Ductless Air Conditioning",
+        "Furnaces-New Install",
+        "Furnaces-Repair",
+        "Gas Heat-New install",
+        "Gas Heat-Repair",
+        "Geothermal Systems",
+        "Heating-New Install",
+        "Heating-Repair",
+        "Heat Pumps-New Install",
+        "Heat Pumps-Repair",
+        "Oil Heat-New Install",
+        "Oil Heat-Repair",
+        "Radiant Floor System",
+        "Thermostats",
+        "Boiler & Radiators Repair",
+        "Ductless AC Repair",
+        "Ducts and Vents Install",
       ];
-      // Only code first 16 options
       const selectedHVAC = formDataObj[key];
-      const hvacCode = hvacOptions.slice(0, 16).indexOf(selectedHVAC) + 1;
+      const hvacCode = hvacOptions.indexOf(selectedHVAC) + 1;
       formDataObj["HVACType"] = hvacCode > 0 ? hvacCode : "";
       delete formDataObj[key];
     }
@@ -645,7 +645,7 @@ const handleSubmit = (values, { resetForm }) => {
           "BrickFace Install/Replace",
           "BrickFace Repair",
           "Composite Wood - Install/Replace",
-          " Composite Wood - Repair",
+          "Composite Wood - Repair",
           "StoneFace- Install/Replace",
           "StoneFace- Repair",
           "Stucco- Install/Replace",
@@ -730,7 +730,7 @@ const handleSubmit = (values, { resetForm }) => {
         "Vinyl or PVC Fence Repair",
         "Chain Link Fence Install/Replace",
         "Chain Link Fence Repair",
-        "Wrought Iron Fence Install/Relace",
+        "Wrought Iron Fence Install/Replace",
         "Wrought Iron Fence Repair",
         "Aluminium Or Steel Fence Install/Replace",
         "Aluminium Or Steel Fence Repair",
