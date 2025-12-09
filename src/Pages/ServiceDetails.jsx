@@ -400,7 +400,7 @@ const handleSubmit = (values, { resetForm }) => {
   // Solar-specific mappings
   if (service.title === "Solar") {
     // Currency bill mapping
-    if (formDataObj["How much is your currency bill?"]) {
+    if (formDataObj["How much is your electricity bill?"]) {
       const billOptions = [
         "50$",
         "100$",
@@ -414,10 +414,10 @@ const handleSubmit = (values, { resetForm }) => {
         "900$",
         "More than 900$",
       ];
-      const selected = formDataObj["How much is your currency bill?"];
+      const selected = formDataObj["How much is your electricity bill?"];
       const mappedValue = billOptions.indexOf(selected) + 1;
       formDataObj["SolarCurrencyBill"] = mappedValue > 0 ? mappedValue : "";
-      delete formDataObj["How much is your currency bill?"];
+      delete formDataObj["How much is your electricity bill?"];
     }
     // Sun hits roof mapping
     if (formDataObj["How much sun hits your roof?"]) {
