@@ -779,9 +779,12 @@ const handleSubmit = (values, { resetForm }) => {
   }
 
   // Add final API payload fields
+  let formType = service.title.toLowerCase();
+  if (formType === 'homesecurity') formType = 'home_security';
   formDataObj = {
     ...formDataObj,
     category: service.category,
+    formType: formType,
   };
 
   // ✅ Send API Request as application/json
@@ -1433,10 +1436,10 @@ const stateAbbreviations = {
                       <button
                         type="submit"
                         className="px-6 py-2 bg-[#ffb000] text-black rounded-md hover:bg-amber-500 transition duration-300 ml-auto flex items-center justify-center"
-                        disabled={loading || ipCountryCode !== "US"} // <-- Use disabled, not blocked
+                        disabled={loading}
                         style={{
-                          opacity: loading || ipCountryCode !== "US" ? 0.5 : 1,
-                          cursor: loading || ipCountryCode !== "US" ? "not-allowed" : "blocked"
+                          opacity: loading ? 0.5 : 1,
+                          cursor: loading ? "not-allowed" : "pointer"
                         }}
                       >
                         {loading ? (
