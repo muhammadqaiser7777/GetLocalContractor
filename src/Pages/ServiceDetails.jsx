@@ -966,13 +966,11 @@ const stateAbbreviations = {
 
   // Add stateAbbreviation and ipCountryCode state
   const [ipCountryCode, setIpCountryCode] = useState("US");
-  const [ipCheckError, setIpCheckError] = useState("");
   const [validating, setValidating] = useState(false); // <-- Add this
 
-  // Reset ipCountryCode and ipCheckError on service change
+  // Reset ipCountryCode on service change
   useEffect(() => {
     setIpCountryCode("US");
-    setIpCheckError("");
   }, [title]);
 
   // --- Formik enhanced validateAndContinue ---
@@ -1039,9 +1037,8 @@ const stateAbbreviations = {
           setFieldValue("city", "", false);
         }
       } catch {
-        setErrors({ ...validationErrors, zipCode: "Could not validate zip code." });
+        // Allow proceeding to next step if zip validation API fails
         setValidating(false);
-        return;
       }
     }
 
@@ -1083,21 +1080,14 @@ const stateAbbreviations = {
       }
     }
 
-    // IP country validation at 2nd last step (do NOT block next, just set error for submit)
+    // IP country validation removed - allow submission regardless of IP location
     if (currentStep === totalSteps - 2 && values.ipAddress) {
       try {
         const ipRes = await fetch(`https://ipapi.co/${values.ipAddress}/json/`);
         const ipData = await ipRes.json();
-        if (ipData.country_code !== "US") {
-          setIpCountryCode(ipData.country_code);
-          setIpCheckError("This service is only for US citizens.");
-        } else {
-          setIpCountryCode("US");
-          setIpCheckError("");
-        }
+        setIpCountryCode(ipData.country_code || "US");
       } catch {
         setIpCountryCode("US");
-        setIpCheckError("");
       }
       // Do NOT return here, let user go to last step
     }
@@ -1471,9 +1461,6 @@ const stateAbbreviations = {
                   </div>
                   {apiError && (
                     <div className="text-red-600 text-center mt-4">{apiError}</div>
-                  )}
-                  {ipCheckError && (
-                    <div className="text-red-600 text-center mt-4">{ipCheckError}</div>
                   )}
                 </div>
               </Form>
