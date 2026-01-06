@@ -788,7 +788,7 @@ const handleSubmit = (values, { resetForm }) => {
   };
 
   // ✅ Send API Request as application/json
-  fetch("https://getlocalcontractors.com/api/ping-proxy.php", {
+  fetch("https://getlocalcontractors.com/server/forward-lead", {
     method: "POST",
     headers:
     {
@@ -797,11 +797,12 @@ const handleSubmit = (values, { resetForm }) => {
     body: JSON.stringify(formDataObj), // send JSON data
   })
     .then(async (response) => {
+      const responseText = await response.text();
       let responseData;
       try {
-        responseData = await response.json();
+        responseData = JSON.parse(responseText);
       } catch {
-        responseData = await response.text();
+        responseData = responseText;
       }
       if (response.ok) {
         setLoading(false);
