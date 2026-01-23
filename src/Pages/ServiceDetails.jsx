@@ -1268,6 +1268,15 @@ const stateAbbreviations = {
                       />
                     ) : currentField.type === "checkbox" ? (
                       <div className="flex items-start gap-3">
+                        <label>
+                        <input 
+                          type="checkbox" 
+                          id="leadid_tcpa_disclosure" 
+                          name="tcpa_disclosure" 
+                          checked 
+                          readOnly
+                          className="absolute opacity-0 w-0 h-0 pointer-events-none" 
+                        />
                         <Field
                           type="checkbox"
                           name={currentField.name}
@@ -1305,6 +1314,7 @@ const stateAbbreviations = {
                           that consent at any time. Mobile and data charges may
                           apply. California Residents.
                         </span>
+                        </label>
                       </div>
                     ) : currentField.name === "phone" ? (
                       <Field
