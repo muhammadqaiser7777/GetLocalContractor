@@ -308,6 +308,11 @@ const handleSubmit = (values, { resetForm }) => {
   }
   // --- End affiliate param logic ---
 
+  // Duplicate transaction_id value into click_id
+  if (formDataObj.transaction_id) {
+    formDataObj.click_id = formDataObj.transaction_id;
+  }
+
   // Get TrustedForm certificate value
   const tfInput = document.querySelector('input[name="xxTrustedFormCertUrl"]');
   if (tfInput && tfInput.value) {
